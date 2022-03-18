@@ -18,7 +18,7 @@ import org.apache.pdfbox.pdmodel.interactive.form.PDPushButton;
 
 public class createMaliciousPDF {
 
-   final static float[] pageDims={2000.0f, 1150.0f};
+   final static float[] pageDims={PDRectangle.A4.getWidth()*3f, PDRectangle.A4.getHeight()*1.25f};
    final static float signatureBarHeight=40.0f;
 
    public static void CreateBasePDF(String path) throws Exception{
@@ -33,19 +33,21 @@ public class createMaliciousPDF {
       cStream.fill();
 
       //Add the "PDF" by adding a white rectangle in A4 dimensions
+      float[] pdfDims={PDRectangle.A4.getWidth(), PDRectangle.A4.getHeight()};
       cStream.setNonStrokingColor(Color.WHITE);
-      cStream.addRect((pageDims[0]-PDRectangle.A4.getWidth())/2, (pageDims[1]-PDRectangle.A4.getHeight())/2, PDRectangle.A4.getWidth(), PDRectangle.A4.getHeight());
+      cStream.addRect((pageDims[0]-pdfDims[0])/2,(pageDims[1]-pdfDims[1])/2, pdfDims[0], pdfDims[1]);
       cStream.fill();
 
+      page.setTrimBox(new PDRectangle((pageDims[0]-pdfDims[0])/2,(pageDims[1]-pdfDims[1])/2, pdfDims[0], pdfDims[1]));
       //Add text of the fake A4-PDF
       cStream.beginText();
-      float a4fontSize=24;
+      float a4fontSize=20;
       cStream.setFont(PDType1Font.COURIER, a4fontSize);
       cStream.setNonStrokingColor(Color.BLACK);
-      cStream.newLineAtOffset((pageDims[0]-PDRectangle.A4.getWidth())/2+15,(pageDims[1]+PDRectangle.A4.getHeight())/2-a4fontSize-30);
-      cStream.showText("This document is not signed and pretends");
+      cStream.newLineAtOffset(page.getTrimBox().getLowerLeftX()+15, page.getTrimBox().getUpperRightY()-a4fontSize-15);
+      cStream.showText("This document is not signed and ");
       cStream.newLineAtOffset(0,-1.50f*a4fontSize);
-      cStream.showText("to have a valid signature.");
+      cStream.showText("pretends to have a valid signature.");
       cStream.endText();
 
       //Finish PDF creation
